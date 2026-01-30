@@ -18,7 +18,7 @@ func main() {
 		port = "8080"
 	}
 
-	st := store.NewInMemoryStore()
+	st := store.NewMemoryStore()
 
 	router := chi.NewRouter()
 	router.Use(middleware.Logger)
@@ -32,16 +32,16 @@ func main() {
 		w.Write([]byte("OK"))
 	})
 
-	handler := handlers.New(st)
+	h := handlers.New(st)
 
 	router.Route("/v1", func(r chi.Router) {
-		router.Get("/resources", handler.GetResources)
-		router.Post("/resources", handler.CreateResource)
-		router.Get("/resources/{id}", handler.GetResource)
+		router.Get("/resources", h.ListResources)
+		router.Post("/resources", h.CreateResource)
+		router.Get("/resources/{id}", h.GetResource)
 		//r.Put("/resources/{id}/tags", handler.UpdateResourceTags)
-		router.Delete("/resources/{id}", handler.DeleteResource)
+		router.Delete("/resources/{id}", h.DeleteResource)
 
-		router.Post("/resources/{id}/apply-tags", handler.ApplyTagsToAzure)
+		router.Post("/resources/{id}/apply-tags", h.ApplyTagsToAzure) //endpoint
 	})
 
 	log.Printf("Starting server on port %s", port)
