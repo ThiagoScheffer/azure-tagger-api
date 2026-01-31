@@ -13,6 +13,18 @@ type applyReq struct {
 	Tags map[string]string `json:"tags"`
 }
 
+// ApplyTagsToAzure godoc
+// @Summary      Apply tags to the Azure resource
+// @Tags         azure
+// @Accept       json
+// @Produce      json
+// @Param        id      path     string   true  "Resource ID"
+// @Param        payload body     applyReq true  "Tags to apply"
+// @Success      200     {object} map[string]any
+// @Failure      400     {object} map[string]string
+// @Failure      404     {object} map[string]string
+// @Failure      500     {object} map[string]string
+// @Router       /resources/{id}/apply-tags [post]
 func (h *Handler) ApplyTagsToAzure(w http.ResponseWriter, r *http.Request) {
 	id := chi.URLParam(r, "id")
 

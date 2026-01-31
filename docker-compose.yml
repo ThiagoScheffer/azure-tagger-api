@@ -6,3 +6,4 @@ api:
   environment:
     - PORT=8080
     - AZURE_SUBSCRIPTION_ID=${AZURE_SUBSCRIPTION_ID}
+    

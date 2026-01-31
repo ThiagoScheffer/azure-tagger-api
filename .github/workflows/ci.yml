@@ -33,3 +33,11 @@ jobs:
         with:
           name: coverage
           path: coverage.out
+
+  docker:
+    runs-on: ubuntu-latest
+    needs: test
+    steps:
+      - uses: actions/checkout@v4
+      - name: Build Docker image
+        run: docker build -t azure-tagger-api .

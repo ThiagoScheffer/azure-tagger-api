@@ -1,0 +1,128 @@
+basePath: /v1
+definitions:
+  handlers.applyReq:
+    properties:
+      tags:
+        additionalProperties:
+          type: string
+        type: object
+    type: object
+  handlers.createReq:
+    properties:
+      azureId:
+        type: string
+      name:
+        type: string
+      tags:
+        additionalProperties:
+          type: string
+        type: object
+    type: object
+  models.Resource:
+    properties:
+      azure_id:
+        type: string
+      create_unix:
+        type: integer
+      id:
+        type: string
+      name:
+        type: string
+      tags:
+        additionalProperties:
+          type: string
+        type: object
+    type: object
+host: localhost:8080
+info:
+  contact:
+    email: you@example.com
+    name: Your Name
+  description: |-
+    REST API that manages Azure resource metadata and applies tags using Azure SDK.
+    This project demonstrates:
+    - Clean architecture
+    - Dependency injection
+    - Unit testing with mocks
+    - Docker containerization
+    - CI/CD with GitHub Actions
+  license:
+    name: MIT
+  termsOfService: https://example.com/terms
+  title: Azure Tagger API
+  version: "1.0"
+paths:
+  /resources:
+    post:
+      consumes:
+      - application/json
+      description: Stores an Azure resource ID + tags
+      parameters:
+      - description: Resource payload
+        in: body
+        name: payload
+        required: true
+        schema:
+          $ref: '#/definitions/handlers.createReq'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/models.Resource'
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Create a resource
+      tags:
+      - resources
+  /resources/{id}/apply-tags:
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: Resource ID
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: Tags to apply
+        in: body
+        name: payload
+        required: true
+        schema:
+          $ref: '#/definitions/handlers.applyReq'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties: true
+            type: object
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "404":
+          description: Not Found
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Apply tags to the Azure resource
+      tags:
+      - azure
+swagger: "2.0"

@@ -9,6 +9,7 @@ import (
 	"github.com/ThiagoScheffer/azure-tagger-api/internal/azure"
 	"github.com/ThiagoScheffer/azure-tagger-api/internal/store"
 	"github.com/go-chi/chi/v5"
+	//"github.com/ThiagoScheffer/azure-tagger-api/internal/models"
 )
 
 type Handler struct {
@@ -44,6 +45,16 @@ type createReq struct {
 	Tags    map[string]string `json:"tags"`
 }
 
+// CreateResource godoc
+// @Summary      Create a resource
+// @Description  Stores an Azure resource ID + tags
+// @Tags         resources
+// @Accept       json
+// @Produce      json
+// @Param        payload  body      createReq  true  "Resource payload"
+// @Success      201      {object}  models.Resource
+// @Failure      400      {object}  map[string]string
+// @Router       /resources [post]
 func (h *Handler) CreateResource(w http.ResponseWriter, r *http.Request) {
 	var req createReq
 	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
