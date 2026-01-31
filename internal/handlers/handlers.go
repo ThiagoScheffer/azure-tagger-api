@@ -1,19 +1,31 @@
 package handlers
 
 import (
+	"context"
 	"encoding/json"
 	"net/http"
+	"os"
 
+	"github.com/ThiagoScheffer/azure-tagger-api/internal/azure"
 	"github.com/ThiagoScheffer/azure-tagger-api/internal/store"
 	"github.com/go-chi/chi/v5"
 )
 
 type Handler struct {
 	store *store.MemoryStore
+
+	taggerFactory TaggerFactory //for testing
 }
 
 func New(st *store.MemoryStore) *Handler {
-	return &Handler{store: st}
+	return &Handler{
+		store: st,
+		taggerFactory: func() (AzureTagger, error) {
+			apiVersion := os.Getenv("AZURE_RESOURCE_API_VERSION")
+			// example: "2021-04-01" (depends on resource type!)
+			return azure.NewTagger(apiVersion)
+		},
+	}
 }
 
 func writeJSON(w http.ResponseWriter, code int, v any) {
@@ -71,3 +83,9 @@ func (h *Handler) DeleteResource(w http.ResponseWriter, r *http.Request) {
 	}
 	w.WriteHeader(204)
 }
+
+type AzureTagger interface {
+	ApplyTags(ctx context.Context, resourceID string, tags map[string]string) error
+}
+
+type TaggerFactory func() (AzureTagger, error)

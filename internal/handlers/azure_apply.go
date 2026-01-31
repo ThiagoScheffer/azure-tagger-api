@@ -6,7 +6,6 @@ import (
 	"net/http"
 	"time"
 
-	"github.com/ThiagoScheffer/azure-tagger-api/internal/azure"
 	"github.com/go-chi/chi/v5"
 )
 
@@ -33,7 +32,7 @@ func (h *Handler) ApplyTagsToAzure(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	tagger, err := azure.NewTagger()
+	tagger, err := h.taggerFactory() //for testing
 	if err != nil {
 		writeErr(w, 400, "azure not configured: set AZURE_SUBSCRIPTION_ID")
 		return
@@ -42,7 +41,7 @@ func (h *Handler) ApplyTagsToAzure(w http.ResponseWriter, r *http.Request) {
 	ctx, cancel := context.WithTimeout(context.Background(), 15*time.Second)
 	defer cancel()
 
-	if err := tagger.ApplyTags(ctx, res.AzureID, "2020-01-01", req.Tags); err != nil {
+	if err := tagger.ApplyTags(ctx, res.AzureID, req.Tags); err != nil {
 		writeErr(w, 500, "azure error: "+err.Error())
 		return
 	}

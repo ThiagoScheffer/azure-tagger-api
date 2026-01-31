@@ -14,18 +14,22 @@ var ErrMissingSubscription = errors.New("AZURE_SUBSCRIPTION_ID is missing")
 
 type Tagger struct {
 	subscriptionID string
+	apiVersion     string
 }
 
-func NewTagger() (*Tagger, error) {
+func NewTagger(apiVersion string) (*Tagger, error) {
 	sub := os.Getenv("AZURE_SUBSCRIPTION_ID")
 	if sub == "" {
 		return nil, ErrMissingSubscription
 	}
-	return &Tagger{subscriptionID: sub}, nil
+	if apiVersion == "" {
+		return nil, errors.New("apiVersion is missing")
+	}
+	return &Tagger{subscriptionID: sub, apiVersion: apiVersion}, nil
 }
 
 // ApplyTags applies tags to a resourceID (full Azure resource ID).
-func (t *Tagger) ApplyTags(ctx context.Context, resourceID string, apiVersion string, tags map[string]string) error {
+func (t *Tagger) ApplyTags(ctx context.Context, resourceID string, tags map[string]string) error {
 	cred, err := azidentity.NewDefaultAzureCredential(nil)
 	if err != nil {
 		return err
@@ -41,7 +45,7 @@ func (t *Tagger) ApplyTags(ctx context.Context, resourceID string, apiVersion st
 		azureTags[k] = to.Ptr(v)
 	}
 
-	poller, err := client.BeginUpdateByID(ctx, resourceID, apiVersion, armresources.GenericResource{
+	poller, err := client.BeginUpdateByID(ctx, resourceID, t.apiVersion, armresources.GenericResource{
 		Tags: azureTags,
 	}, nil)
 	if err != nil {
